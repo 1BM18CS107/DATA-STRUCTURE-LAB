@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<conio.h>
-#define stack_size 50
+#define stack_size 3
 void push(int[],int *);
 void pop(int[],int *);
 void display (int[], int *);
