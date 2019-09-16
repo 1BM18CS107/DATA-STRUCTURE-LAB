@@ -1,83 +1,94 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-#define MAXSIZE 20
-char pop(int[],int *);
-void push(int[],int *,int);
-int evaluate(int,int,char);
-
-int main(void) {
-    int i,top=-1,top1,top2,dch,total,ostack[MAXSIZE];
-	char stack[MAXSIZE],ch,item1,item2;
-	scanf("%s",stack);
-	i=0;
-	while(stack[i]!='\0') {
-	    ch = stack[i];
-	    switch(ch) {
-	        case '+':
-	        case '-':
-	        case '*':
-	        case '/':
-	        case '^':item1 = pop(ostack,&top);
-	                 item2 = pop(ostack,&top);
-	                 total = evaluate(item1,item2,ch);
-	                 push(ostack,&top,total);
-	                 break;
-
-	       default:break;
-	    }
-
-	    switch(ch) {
-	        case '0':
-	        case '1':
-	        case '2':
-	        case '3':
-	        case '4':
-	        case '5':
-	        case '6':
-	        case '7':
-	        case '8':
-	        case '9':   dch = ch-48;
-	                    push(ostack,&top,dch);
-	                    break;
-	        default:break;
-	    }
-	    i++;
-	}
-	printf("%d",ostack[0]);
-}
-char pop(int ostack[], int *top) {
+#include<stdlib.h>
+#define size 100
+void push(char *item,int *top,char stack[size])
+{if (*top>=(size-1))
+    printf("stack overflow");
+    else
+ {
+    (*top)++;
+    stack[*top]=*item;
+ }
+} 
+char pop(int *top,char stack[size])
+{
     char item;
-    if(*top==-1) {
-        printf("STack underflow\n");
-    }
-else {
-    item = ostack[(*top)--];
-    return item;
+    item=stack[*top];
+    (*top)--;
+    return(item);
 }
-
+int is_operator(char *symbol)
+{ 
+    if (*symbol=='^'|| *symbol=='*'|| *symbol=='/'|| *symbol=='+'|| *symbol=='-')
+    return 1;
+    else
+    return 0;
 }
+int precedence(char *symbol)
+{
+    if (*symbol=='^')
+    return 3;
+    else if (*symbol=='*'||*symbol=='/')
+    return 2;
+    else if (*symbol=='+'|| *symbol=='-')
+    return 1;
+    else
+    return 0;
+}    
 
-void push(int ostack[],int *top,int ch) {
-    if(*top==MAXSIZE-1) {
-        printf("Stack Overflow");
+int main()
+{
+char infix[size],postfix[size],stack[size], item,temp;
+int i=0,j=0,top=-1;
+printf("enter the expression in INFIX notation:");
+scanf("%s",infix);
+while(infix[i]!='\0')
+{
+    item=infix[i];
+    if(item=='(')
+     push(&item,&top,stack);
+    else if((item>='A') &&( item<='z') ||( item>='a') && (item<='z'))
+    {
+      postfix[j]=item;
+      j++;
+    } 
+    else if ((is_operator(&item))==1)
+    {
+        temp=pop(&top,stack);
+        while((is_operator(&temp)==1) && (precedence(&temp)>=precedence(&item)))
+        {
+         postfix[j]=temp;
+         j++;
+         temp=pop(&top,stack);
+        }    
+        push(&temp,&top,stack);
+        push(&item,&top,stack);
     }
-else
-    ostack[++(*top)] = ch;
+    else if (item=')')
+    {
+        temp=pop(&top,stack);
+        while(temp!='(')
+        {
+            postfix[j]=temp;
+            j++;
+            temp=pop(&top,stack);
+        }
+    }
+    else 
+    {
+        printf("invalid expression");
+        exit(0);
+        
+    }
+    i++;
 }
-
-int evaluate(int x,int y,char ch) {
-    switch(ch) {
-        case '+':return y+x;
-                break;
-        case '-': return y-x;
-                break;
-        case '*':return y*x;
-                break;
-        case '/':return y/x;
-                break;
-        case '^':return pow(y,x);
-                break;
-    }
+while(top>=-1)
+{
+    postfix[j]=pop(&top,stack);
+    j++;
+}
+postfix[j]='\0';
+printf ("postfix expression:");
+puts(postfix);
+return 0;
 }
